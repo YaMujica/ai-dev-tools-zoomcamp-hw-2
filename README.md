@@ -8,28 +8,74 @@ WaitEase is a modern, lightweight restaurant waitlist management application. It
 ```text
 hw-2/
 ├── _docs/
-│   └── specs.md       # Product specifications and data models
-├── frontend/          # Node.js / React frontend
-├── backend/           # FastAPI / Python backend with uv
-├── AGENTS.md          # Guide for AI coding agents working on this project
+│   ├── specs.md       # Product specifications and data models
+│   └── openapi.yaml   # OpenAPI 3.0 API schema
+├── frontend/          # Node.js + React (Vite) client
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── AddPartyModal.jsx
+│   │   │   ├── GuestViewModal.jsx
+│   │   │   ├── PartyCard.jsx
+│   │   │   └── StatsBar.jsx
+│   │   ├── services/
+│   │   │   └── api.js
+│   │   ├── App.jsx
+│   │   ├── index.css
+│   │   └── main.jsx
+│   └── package.json
+├── backend/           # FastAPI backend with SQLAlchemy and uv
+│   ├── src/
+│   │   └── backend/
+│   │       ├── database.py
+│   │       ├── models.py
+│   │       └── main.py
+│   ├── tests/
+│   │   └── test_api.py
+│   └── pyproject.toml
+├── AGENTS.md          # Instructions for AI coding assistants
 └── README.md
 ```
 
+---
+
+## Quickstart Guide
+
+### 1. Start Backend (FastAPI + SQLAlchemy)
+From the `backend` directory:
+```bash
+# Run database migrations / start server
+uv run uvicorn backend.main:app --reload --port 8000
+```
+Interactive OpenAPI Swagger docs are available at: `http://localhost:8000/docs`
+
+### 2. Run Backend Tests
+From the `backend` directory:
+```bash
+uv run pytest
+```
+
+### 3. Start Frontend (React + Vite)
+From the `frontend` directory:
+```bash
+# Install dependencies (if not already installed)
+npm install
+
+# Start development server
+npm run dev
+```
+Open your browser at: `http://localhost:5173`
+
+---
+
 ## Features
 - **Host Dashboard**:
-  - Add parties with custom party sizes, contact phone, and notes.
-  - Live waitlist with party status lifecycle: `WAITING` -> `NOTIFIED` -> `SEATED` / `CANCELLED`.
-  - Filter parties by active status or history.
+  - Add walk-in parties with party size, phone number, and special requests.
+  - Live queue lifecycle: `WAITING` ➔ `NOTIFIED` ➔ `SEATED` / `CANCELLED`.
+  - Filter parties by `Active Queue`, `Waiting`, `Notified`, `Seated`, or `All`.
   - Real-time KPI summary (parties waiting, total guests, average wait time, seated count).
-- **Guest Status View**:
-  - Live link for guests to check their position in line and estimated wait time remaining.
-
-## Tech Stack
-- **Frontend**: Node.js + React (Vite)
-- **Backend**: FastAPI with Python (`uv` package manager)
-- **Database**: SQLAlchemy ORM with SQLite
-- **API Spec**: OpenAPI 3.0
-- **Testing**: `pytest`
-
-## Getting Started
-Detailed setup instructions for both frontend and backend will be documented as each module is implemented.
+- **Guest Live Status View**:
+  - Modal simulator and dedicated view for waiting guests showing exact place in line and estimated wait time remaining.
+- **Database Persistence**:
+  - Powered by SQLAlchemy ORM with SQLite backend (database-agnostic).
+- **Automated Tests**:
+  - Full test coverage for all endpoints and status transitions using `pytest`.

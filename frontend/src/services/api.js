@@ -1,9 +1,8 @@
 // WaitEase Centralized API Service
-// Currently operates in MOCK mode for Question 4 frontend prototyping.
-// In Question 6, this can be switched to call the real FastAPI backend.
+// Connected to live FastAPI backend (Question 6)
 
-const USE_MOCK = true;
-const API_BASE_URL = 'http://localhost:8000/api';
+const USE_MOCK = false;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
 
 // Initial mock data simulating walk-in restaurant parties
 let mockParties = [
