@@ -1,0 +1,200 @@
+openapi: 3.0.3
+info:
+  title: WaitEase Restaurant Waitlist API
+  description: Backend API for managing restaurant walk-in parties and waitlists.
+  version: 1.0.0
+paths:
+  /api/parties:
+    get:
+      summary: List all parties
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [WAITING, NOTIFIED, SEATED, CANCELLED, ACTIVE, ALL]
+            default: ALL
+      responses:
+        '200':
+          description: List of parties
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PartyResponse'
+    post:
+      summary: Add a new party to waitlist
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PartyCreate'
+      responses:
+        '201':
+          description: Party created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PartyResponse'
+
+  /api/parties/{id}:
+    get:
+      summary: Get party by ID (with line position)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Party details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PartyDetailResponse'
+        '404':
+          description: Party not found
+    delete:
+      summary: Remove a party
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Party deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+
+  /api/parties/{id}/status:
+    patch:
+      summary: Update party status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PartyStatusUpdate'
+      responses:
+        '200':
+          description: Status updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PartyResponse'
+        '404':
+          description: Party not found
+
+  /api/stats:
+    get:
+      summary: Get waitlist metrics
+      responses:
+        '200':
+          description: Queue statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatsResponse'
+
+components:
+  schemas:
+    PartyStatus:
+      type: string
+      enum: [WAITING, NOTIFIED, SEATED, CANCELLED]
+
+    PartyCreate:
+      type: object
+      required:
+        - customer_name
+        - party_size
+      properties:
+        customer_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        party_size:
+          type: integer
+          minimum: 1
+          maximum: 20
+        phone_number:
+          type: string
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        estimated_wait_minutes:
+          type: integer
+          nullable: true
+          minimum: 0
+
+    PartyStatusUpdate:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          $ref: '#/components/schemas/PartyStatus'
+
+    PartyResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        customer_name:
+          type: string
+        party_size:
+          type: integer
+        phone_number:
+          type: string
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        status:
+          $ref: '#/components/schemas/PartyStatus'
+        estimated_wait_minutes:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    PartyDetailResponse:
+      allOf:
+        - $ref: '#/components/schemas/PartyResponse'
+        - type: object
+          properties:
+            position:
+              type: integer
+              nullable: true
+
+    StatsResponse:
+      type: object
+      properties:
+        active_parties:
+          type: integer
+        total_guests_waiting:
+          type: integer
+        avg_wait_minutes:
+          type: integer
+        seated_today:
+          type: integer
